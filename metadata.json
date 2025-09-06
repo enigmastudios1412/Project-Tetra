@@ -1,0 +1,5 @@
+{
+  "name": "AI Image Generator V.1.0",
+  "description": "Generate stunning images from text prompts using Google's powerful Imagen models. Choose your aspect ratio and bring your ideas to life.",
+  "requestFramePermissions": []
+}
