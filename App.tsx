@@ -9,7 +9,7 @@ import type { AspectRatio } from './types';
 import { PromptGenerator } from './components/PromptGenerator';
 
 const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'generator' | 'prompt-enhancer'>('generator');
+  const [activeTab, setActiveTab] = useState<'generator' | 'prompt-enhancer' | 'video-generator'>('generator');
   const [prompt, setPrompt] = useState<string>('');
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>('1:1');
   const [model, setModel] = useState<string>('imagen-4.0-generate-001');
@@ -96,10 +96,21 @@ const App: React.FC = () => {
             >
               Prompt Enhancer
             </button>
+             <button
+              onClick={() => setActiveTab('video-generator')}
+              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-lg transition-colors duration-200 focus:outline-none ${
+                activeTab === 'video-generator'
+                  ? 'border-purple-500 text-purple-400'
+                  : 'border-transparent text-gray-500 hover:text-gray-300 hover:border-gray-500'
+              }`}
+              aria-current={activeTab === 'video-generator' ? 'page' : undefined}
+            >
+              Video Generator
+            </button>
           </nav>
         </div>
 
-        {activeTab === 'generator' ? (
+        {activeTab === 'generator' && (
           <>
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-white">AI Image Generator</h2>
@@ -126,9 +137,21 @@ const App: React.FC = () => {
               />
             </div>
           </>
-        ) : (
+        )}
+        
+        {activeTab === 'prompt-enhancer' && (
           <PromptGenerator apiKey={apiKey} onUsePrompt={handleUsePrompt} />
         )}
+        
+        {activeTab === 'video-generator' && (
+           <div className="text-center py-20">
+            <h2 className="text-3xl md:text-4xl font-bold text-white">Video Generator</h2>
+            <p className="mt-4 text-lg text-gray-400 max-w-2xl mx-auto">
+              Coming soon.
+            </p>
+          </div>
+        )}
+
       </main>
       <Footer />
       <ApiKeyModal
