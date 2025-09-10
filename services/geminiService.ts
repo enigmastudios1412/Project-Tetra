@@ -1,5 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
-import type { GenerateImagesResponse } from "@google/genai";
+import type { GenerateImagesResponse, GenerateContentResponse } from "@google/genai";
 import type { AspectRatio } from "../types";
 
 const parseAndThrowEnhancedError = (error: unknown) => {
@@ -32,6 +32,45 @@ const parseAndThrowEnhancedError = (error: unknown) => {
     }
     throw new Error("Failed to communicate with the AI service. The service may be busy or the prompt may have been blocked.");
 }
+
+export const enhancePrompt = async (
+  currentPrompt: string,
+  apiKey: string
+): Promise<string> => {
+  try {
+    if (!apiKey) {
+      throw new Error("API Key is missing. Please set your Gemini API key.");
+    }
+
+    const ai = new GoogleGenAI({ apiKey });
+    
+    const systemInstruction = `You are a creative assistant for a professional photographer. 
+Your task is to enhance a user's initial idea into a rich, detailed prompt for an AI image generator. 
+Add professional photography details like lighting, lens effects, camera angles, wardrobe, emotion, and background. 
+If the initial prompt is empty, generate a creative model photography concept from scratch. 
+Respond only with the enhanced prompt text, without any preamble or explanation.`;
+
+    const response: GenerateContentResponse = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: currentPrompt || 'Generate a creative model photography concept from scratch.',
+        config: {
+            systemInstruction: systemInstruction,
+            temperature: 0.8,
+            topP: 0.9,
+        }
+    });
+    
+    const text = response.text;
+    if (!text) {
+        throw new Error("The AI model did not return any text.");
+    }
+    return text.trim();
+
+  } catch (error) {
+    parseAndThrowEnhancedError(error);
+    return ""; // Unreachable
+  }
+};
 
 export const generateImage = async (
   prompt: string,

@@ -6,8 +6,10 @@ import { Footer } from './components/Footer';
 import { ApiKeyModal } from './components/ApiKeyModal';
 import { generateImage } from './services/geminiService';
 import type { AspectRatio } from './types';
+import { PromptGenerator } from './components/PromptGenerator';
 
 const App: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'generator' | 'prompt-enhancer'>('generator');
   const [prompt, setPrompt] = useState<string>('');
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>('1:1');
   const [model, setModel] = useState<string>('imagen-4.0-generate-001');
@@ -18,6 +20,8 @@ const App: React.FC = () => {
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
+    // In a real environment, prefer environment variables.
+    // For this self-contained app, we use localStorage.
     const storedApiKey = localStorage.getItem('gemini_api_key');
     if (storedApiKey) {
       setApiKey(storedApiKey);
@@ -58,34 +62,73 @@ const App: React.FC = () => {
     }
   }, [prompt, aspectRatio, model, apiKey]);
 
+  const handleUsePrompt = (newPrompt: string) => {
+    setPrompt(newPrompt);
+    setActiveTab('generator');
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 flex flex-col font-sans">
       <Header onApiKeyClick={() => setIsApiKeyModalOpen(true)} />
       <main className="flex-grow container max-w-screen-xl mx-auto px-4 py-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-white">AI Image Generator</h2>
-          <p className="mt-4 text-lg text-gray-400 max-w-2xl mx-auto">
-            Describe your vision and let AI bring it to life. Choose your model and aspect ratio for the perfect shot.
-          </p>
+        
+        <div className="mb-8 border-b border-gray-700">
+          <nav className="-mb-px flex space-x-6" aria-label="Tabs">
+            <button
+              onClick={() => setActiveTab('generator')}
+              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-lg transition-colors duration-200 focus:outline-none ${
+                activeTab === 'generator'
+                  ? 'border-purple-500 text-purple-400'
+                  : 'border-transparent text-gray-500 hover:text-gray-300 hover:border-gray-500'
+              }`}
+              aria-current={activeTab === 'generator' ? 'page' : undefined}
+            >
+              Image Generator
+            </button>
+            <button
+              onClick={() => setActiveTab('prompt-enhancer')}
+              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-lg transition-colors duration-200 focus:outline-none ${
+                activeTab === 'prompt-enhancer'
+                  ? 'border-purple-500 text-purple-400'
+                  : 'border-transparent text-gray-500 hover:text-gray-300 hover:border-gray-500'
+              }`}
+              aria-current={activeTab === 'prompt-enhancer' ? 'page' : undefined}
+            >
+              Prompt Enhancer
+            </button>
+          </nav>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-          <ControlPanel
-            prompt={prompt}
-            setPrompt={setPrompt}
-            aspectRatio={aspectRatio}
-            setAspectRatio={setAspectRatio}
-            model={model}
-            setModel={setModel}
-            onGenerate={handleGenerate}
-            isLoading={isLoading}
-          />
-          <ResultDisplay 
-            images={generatedImages}
-            isLoading={isLoading}
-            error={error}
-          />
-        </div>
+        {activeTab === 'generator' ? (
+          <>
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-white">AI Image Generator</h2>
+              <p className="mt-4 text-lg text-gray-400 max-w-2xl mx-auto">
+                Describe your vision and let AI bring it to life. Choose your model and aspect ratio for the perfect shot.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+              <ControlPanel
+                prompt={prompt}
+                setPrompt={setPrompt}
+                aspectRatio={aspectRatio}
+                setAspectRatio={setAspectRatio}
+                model={model}
+                setModel={setModel}
+                onGenerate={handleGenerate}
+                isLoading={isLoading}
+              />
+              <ResultDisplay 
+                images={generatedImages}
+                isLoading={isLoading}
+                error={error}
+              />
+            </div>
+          </>
+        ) : (
+          <PromptGenerator apiKey={apiKey} onUsePrompt={handleUsePrompt} />
+        )}
       </main>
       <Footer />
       <ApiKeyModal

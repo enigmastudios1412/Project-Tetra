@@ -23,9 +23,10 @@ const aspectRatios: { label: string; value: AspectRatio }[] = [
 
 const models = [
   { label: 'Imagen 4', value: 'imagen-4.0-generate-001' },
-  // Note: Nano Banana is for image editing, not generation.
-  // Included as disabled to match user's conceptual request.
-  { label: 'Nano Banana (Not available)', value: 'gemini-2.5-flash-image-preview', disabled: true },
+  // Note: Other models are shown for illustrative purposes but disabled as they are not available via this API.
+  { label: 'Imagen 4 Fast', value: 'imagen-4-fast', disabled: true },
+  { label: 'Imagen 4 Ultra', value: 'imagen-4-ultra', disabled: true },
+  { label: 'Imagen 3', value: 'imagen-3', disabled: true },
 ];
 
 export const ControlPanel: React.FC<ControlPanelProps> = ({
